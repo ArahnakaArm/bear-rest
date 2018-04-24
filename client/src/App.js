@@ -1,34 +1,31 @@
 import React, { Component } from 'react';
-import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import reducers from './reducers';
-import { fetchBear } from './actions';
-
-const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
-
-let store = createStoreWithMiddleware(reducers)
+import { connect } from 'react-redux';
+import { deleteBear } from './actions';
 
 class App extends Component {
   constructor(props){
     super(props)
-    this.state = {data: []};
-  }
-  componentDidMount(){
-    store.subscribe(() => {
-      this.setState({data: store.getState().bear})
-    })
-    store.dispatch(fetchBear());
   }
   render() {
-    let bears = this.state.data;
+    let bears = this.props.bear;
     return (
       <div>
         {
-          bears.map(bear => <div key={bear.id}>{bear.name}</div>)
+          bears.map(bear => (
+            <div key={bear.id}>
+              {bear.name}
+              <button onClick={() => this.props.deleteBear(bear.id)}>X</button>
+            </div>
+          ))
         }
       </div>
     );
   }
 }
 
-export default App;
+let mapStateToProps = (state) => (
+  {bear: state.bear}
+)
+export default connect(mapStateToProps, {
+  deleteBear: deleteBear
+})(App);
